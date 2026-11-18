@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Табель и расчёт зарплаты</title>
+<meta name="theme-color" content="#0E4D40">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Табель">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&display=swap">
+<style>
+:root{--bg:#EEF1F4;--card:#fff;--ink:#16222C;--mute:#5C6B78;--line:#D9E0E6;--acc:#0E6B57;--hero:#0E4D40;
+--none:#F4F6F8;--work-bg:#D5F0E4;--work:#0B6B45;--abs-bg:#FADBD8;--abs:#A8261B;--sick-bg:#FBEBC4;--sick:#805B00;--vac-bg:#D6E6FB;--vac:#1D5BA8;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1720;--card:#17212C;--ink:#E6EDF3;--mute:#8FA0AF;--line:#2A3643;--acc:#4FD1A8;--hero:#0B3A30;
+--none:#1C2833;--work-bg:#14402F;--work:#7BE0B0;--abs-bg:#4A1F1D;--abs:#FF9B91;--sick-bg:#4A3A0E;--sick:#F2C75C;--vac-bg:#1B3556;--vac:#8DB9F5}}
+:root[data-theme="dark"]{--bg:#0F1720;--card:#17212C;--ink:#E6EDF3;--mute:#8FA0AF;--line:#2A3643;--acc:#4FD1A8;--hero:#0B3A30;
+--none:#1C2833;--work-bg:#14402F;--work:#7BE0B0;--abs-bg:#4A1F1D;--abs:#FF9B91;--sick-bg:#4A3A0E;--sick:#F2C75C;--vac-bg:#1B3556;--vac:#8DB9F5}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Onest,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+.wrap{max-width:1320px;margin:0 auto;padding:16px;display:grid;gap:16px}
+@media(min-width:900px){.wrap{grid-template-columns:1.15fr 1fr;align-items:start}}
+.col{display:grid;gap:16px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px}
+h1{font-size:20px;margin:0;font-weight:700}
+h2{font-size:15px;margin:0 0 10px;font-weight:600}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.top h1{flex:1 1 100%}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 12px;transition:background .15s}
+.btn:hover{background:var(--none)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}
+.btn.warn{border-color:var(--abs);color:var(--abs)}
+.nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.nav select,.nav input,.f input,.f select,textarea{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px}
+.nav input{width:84px}.nav .sp{flex:1}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.hd{text-align:center;font-size:12px;color:var(--mute);padding-bottom:2px}
+.d{aspect-ratio:1/1;border:2px solid transparent;border-radius:12px;background:var(--none);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;transition:transform .1s,background .15s}
+.d:active{transform:scale(.94)}
+.d b{font-size:16px;font-weight:600}.d i{font-style:normal;font-size:10px;min-height:12px}
+.d.off b{opacity:.5}
+.d.s1{background:var(--work-bg);color:var(--work)}.d.s2{background:var(--abs-bg);color:var(--abs)}
+.d.s3{background:var(--sick-bg);color:var(--sick)}.d.s4{background:var(--vac-bg);color:var(--vac)}
+.d.today{border-color:var(--ink)}
+.ph{visibility:hidden}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:13px;color:var(--mute)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:4px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.hero{background:var(--hero);color:#fff;border-radius:18px;padding:20px}
+.hero small{opacity:.8;font-size:13px}
+.hero .big{font-size:clamp(34px,8vw,46px);font-weight:700;line-height:1.1;margin:4px 0 2px;letter-spacing:-.02em;word-break:break-word}
+.hero .fc{margin-top:10px;font-size:13px;opacity:.85}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:8px 12px}
+dt{color:var(--mute)}dd{margin:0;text-align:right;font-weight:600}
+dd.neg{color:var(--abs)}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.f label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+.f input,.f select{width:100%;color:var(--ink)}
+.hide{display:none!important}
+.offs{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.offs label{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:10px;padding:5px 10px;font-size:13px}
+.hint{font-size:12px;color:var(--mute);margin:8px 0 0}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--mute);font-weight:500}
+tr.cur td{background:var(--none);font-weight:600}
+tfoot td{font-weight:700;border-bottom:0}
+textarea{width:100%;min-height:90px;margin-top:8px;font-family:ui-monospace,monospace;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.msg{font-size:13px;color:var(--mute);margin-top:6px;min-height:18px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:50;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
+.ovc{background:var(--card);border-radius:18px;padding:14px;max-width:720px;width:100%}
+.ovh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.ovc img{width:100%;height:auto;border:1px solid var(--line);border-radius:8px;display:block}
+a.btn{text-decoration:none;color:inherit;display:inline-block}a.btn.pri{color:#fff}
+.row input,.row select{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:7px 10px}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.kpi div{background:var(--none);border-radius:12px;padding:10px 12px}.kpi small{display:block;color:var(--mute);font-size:12px}.kpi b{font-size:20px}
+#lock{display:none}body.locked #lock{display:flex}body.locked .wrap{display:none}
+.lockov{background:var(--bg);align-items:center}.lockc{max-width:380px;display:grid;gap:10px}
+.lockc input{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:10px 12px;width:100%}
+@media(min-width:900px){.wrap{grid-template-columns:270px 1fr}
+.side{grid-row:1/span 2;position:sticky;top:12px;align-self:start;max-height:calc(100vh - 24px);overflow:auto}}
+@media(min-width:1260px){.wrap{grid-template-columns:270px 1.15fr 1fr}}
+.side .kpi{grid-template-columns:1fr}.side .kpi b{font-size:18px}
+.side .row input,.side .row select{width:100%}
+.side #empSel{display:none}.side td,.side th{white-space:normal}
+.side #allT th:nth-child(2),.side #allT td:nth-child(2),.side #allT th:nth-child(3),.side #allT td:nth-child(3){display:none}
+.side #allT{margin-bottom:10px}
+.ar{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.ar small{color:var(--mute)}.ar .row{margin-top:8px}.ar .btn{padding:5px 10px;font-size:13px}
+</style>
+<style id="skin">
+:root{--page:radial-gradient(130% 80% at 50% 0%,#86987F 0%,#62785F 42%,#34443A 100%);--panel:linear-gradient(180deg,#F8F7F4,#EAEDE6);--solid:#F4F3EF;
+--bg:#5E745F;--card:rgba(255,255,255,.66);--edge:rgba(255,255,255,.85);--side:rgba(110,140,106,.14);--ink:#1F2A22;--mute:#66756A;--line:rgba(40,60,45,.16);--ring:rgba(31,42,34,.45);
+--acc:#3F5B3E;--onacc:#fff;--none:rgba(60,85,65,.07);--work-bg:#D9E6CD;--work:#35602A;--abs-bg:#F2D8D2;--abs:#9A3328;--sick-bg:#F0E4C0;--sick:#765A10;--vac-bg:#D8E5EC;--vac:#2F5F7A;
+--h1:#F6F5F1;--h2:#DCE5D4;--mist:#fff;--hill1:#8DA070;--hill2:#587545;--pine:#34503A;--pine2:#456347;--lip:#FBFAF8;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:radial-gradient(130% 80% at 50% 0%,#33453A 0%,#1E2B24 45%,#0E1511 100%);--panel:linear-gradient(180deg,#27332C,#1D2822);--solid:#222E27;
+--bg:#1E2B24;--card:rgba(255,255,255,.05);--edge:rgba(255,255,255,.08);--side:rgba(0,0,0,.18);--ink:#E7EDE4;--mute:#9DAE9F;--line:rgba(255,255,255,.13);--ring:rgba(231,237,228,.4);
+--acc:#A8C48A;--onacc:#14201A;--none:rgba(255,255,255,.06);--work-bg:#2C4429;--work:#B4DB9C;--abs-bg:#4A2824;--abs:#F5A79B;--sick-bg:#47391A;--sick:#EBCB7A;--vac-bg:#243C48;--vac:#9CC7DC;
+--h1:#2B3A31;--h2:#1F2D26;--mist:#9FB5A5;--hill1:#4A6141;--hill2:#34492F;--pine:#1B2C20;--pine2:#2A4130;--lip:#CBD3C6;color-scheme:dark}}
+:root[data-theme="dark"]{--page:radial-gradient(130% 80% at 50% 0%,#33453A 0%,#1E2B24 45%,#0E1511 100%);--panel:linear-gradient(180deg,#27332C,#1D2822);--solid:#222E27;
+--bg:#1E2B24;--card:rgba(255,255,255,.05);--edge:rgba(255,255,255,.08);--side:rgba(0,0,0,.18);--ink:#E7EDE4;--mute:#9DAE9F;--line:rgba(255,255,255,.13);--ring:rgba(231,237,228,.4);
+--acc:#A8C48A;--onacc:#14201A;--none:rgba(255,255,255,.06);--work-bg:#2C4429;--work:#B4DB9C;--abs-bg:#4A2824;--abs:#F5A79B;--sick-bg:#47391A;--sick:#EBCB7A;--vac-bg:#243C48;--vac:#9CC7DC;
+--h1:#2B3A31;--h2:#1F2D26;--mist:#9FB5A5;--hill1:#4A6141;--hill2:#34492F;--pine:#1B2C20;--pine2:#2A4130;--lip:#CBD3C6;color-scheme:dark}
+body{background:var(--page) fixed;min-height:100vh;padding:clamp(8px,2.4vw,28px) clamp(8px,2.4vw,28px) 0;font-weight:400}
+.wrap{position:relative;max-width:1360px;gap:20px;padding:clamp(14px,2.4vw,28px);border-radius:clamp(24px,3.2vw,40px);background:var(--panel);
+box-shadow:0 50px 90px -30px rgba(8,18,12,.65),inset 0 2px 0 rgba(255,255,255,.7)}
+.wrap::before{content:"";display:none;position:absolute;top:11px;left:50%;width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#dfe2dc 72%);box-shadow:0 8px 14px rgba(0,0,0,.2)}
+@media(min-width:900px){.wrap{padding-top:46px}.wrap::before{display:block}}
+@media(min-width:1260px){.wrap>.col:last-child{border-left:1px solid var(--line);padding-left:24px}}
+.col{gap:20px}
+.card{background:var(--card);border:1px solid var(--edge);border-radius:28px;padding:22px;box-shadow:0 20px 36px -26px rgba(35,55,40,.4)}
+.side{background:var(--side);border-color:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+h1{font-size:clamp(22px,3vw,28px);font-weight:400;letter-spacing:-.025em}
+h2{font-size:14px;font-weight:500;color:var(--mute);margin-bottom:12px}
+.btn{background:transparent;border:1px solid var(--ring);border-radius:999px;padding:8px 16px;font-size:14px}
+.btn:hover{background:var(--none)}
+.btn.pri,a.btn.pri{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.btn.pri:hover{background:var(--acc);filter:brightness(1.08)}
+.btn.warn{border-color:var(--abs);color:var(--abs)}
+#prev,#next{width:40px;height:40px;padding:0;border-radius:50%;font-size:22px;line-height:1}
+.nav select,.nav input{border-radius:999px;padding:8px 16px;background:var(--card)}
+.f input,.f select,textarea,.row input,.row select,.lockc input{border-radius:16px;background:var(--card)}
+.offs label{border-radius:999px;padding:6px 14px}
+.grid{gap:8px}
+.d{border-radius:50%;box-shadow:inset 0 0 0 1px var(--line)}
+.d.s1,.d.s2,.d.s3,.d.s4{box-shadow:none}
+.d b{font-weight:500;font-size:15px}
+.hero{display:flex;flex-direction:column;overflow:hidden;padding:26px 26px 0;border-radius:32px;color:var(--ink);background:linear-gradient(180deg,var(--h1),var(--h2));
+box-shadow:0 30px 50px -30px rgba(25,45,30,.55),inset 0 1px 0 rgba(255,255,255,.8)}
+.hero small,.hero .fc{opacity:1;color:var(--mute)}
+.hero .big{font-weight:300;font-size:clamp(34px,7vw,46px);letter-spacing:-.035em}
+.hero svg{display:block;width:calc(100% + 52px);height:auto;margin:16px -26px 0}
+.kpi div{border-radius:18px}.ar{border-radius:18px}
+.ovc{background:var(--solid);border-radius:30px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)}
+.lockov{background:var(--page)}
+.foot{max-width:1360px;margin:0 auto;padding:22px 8px 28px;text-align:center;font-size:12px;color:rgba(255,255,255,.6)}
+body.locked .foot{display:none}
+.late{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:14px;padding:10px 16px;border-radius:22px;background:var(--none)}
+.late span{font-size:14px}.late b{min-width:22px;text-align:center;font-size:18px;font-weight:500}
+.late small{margin-left:auto;color:var(--mute);font-size:13px}
+.ib.sm{width:32px;height:32px;font-size:18px;line-height:1}
+.top{position:relative;flex-wrap:nowrap;align-items:flex-start;gap:10px}
+.top h1{flex:1 1 auto;min-width:0}
+.ib{flex:none;width:42px;height:42px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--ring);background:transparent;color:var(--ink)}
+.ib:hover{background:var(--none)}
+.pop{position:absolute;top:calc(100% + 4px);right:0;z-index:40;display:grid;gap:16px;width:min(370px,calc(100vw - 32px));max-height:min(72vh,580px);overflow:auto;padding:18px;background:var(--solid);border:1px solid var(--edge);border-radius:28px;box-shadow:0 34px 64px -22px rgba(10,25,15,.55)}
+.pop h3{margin:0 0 8px;font-size:13px;font-weight:500;color:var(--mute)}
+.pop .row{margin-top:0}.pop input{flex:1 1 100%}
+.setc{max-width:760px}.setc h2{margin-bottom:8px}
+.chart{margin:18px -26px 0;padding:16px 22px 18px;background:var(--solid);border-radius:32px 32px 0 0;box-shadow:0 -14px 34px -22px rgba(25,45,30,.4)}
+.chtop{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.seg{display:inline-flex;padding:3px;border-radius:999px;background:var(--none)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font-size:13px;color:var(--mute);transition:background .2s,color .2s}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--edge) inset,0 4px 10px -4px rgba(30,50,35,.35)}
+:root[data-theme="dark"] .seg button.on{background:rgba(255,255,255,.12)}
+.chread{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin:14px 2px 4px}
+.chread small{display:block;color:var(--mute);font-size:12px;line-height:1.35}.chread .r{text-align:right}
+.chread b{font-size:clamp(20px,4vw,26px);font-weight:400;letter-spacing:-.025em}
+#chSvg svg{display:block;width:100%;height:auto;touch-action:pan-y;cursor:crosshair;overflow:visible}
+#chSvg text{font:9.5px Onest,system-ui,sans-serif;fill:var(--mute)}
+.an .bar{transform-box:fill-box;transform-origin:bottom;animation:gr .6s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i)*28ms)}
+.an .ln{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 1s ease forwards}.an .fa{animation:fi 1s both}
+@keyframes gr{from{transform:scaleY(0)}}@keyframes dr{to{stroke-dashoffset:0}}@keyframes fi{from{opacity:0}}
+@media(prefers-reduced-motion:reduce){.an *{animation:none!important}.an .ln{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section class="card side">
+ <h2>Работники</h2>
+ <div class="kpi" id="kpi"></div>
+ <div class="tw"><table id="allT"></table></div>
+ <select id="empSel" class="hide" aria-label="Работник"></select>
+</section>
+<div class="col">
+ <section class="card">
+  <div class="top"><h1>Табель и расчёт зарплаты</h1>
+   <button class="ib" id="menuBtn" type="button" aria-label="Меню" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg></button>
+   <button class="ib" id="gearBtn" type="button" aria-label="Настройки"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3.2" stroke-width="1.7"/><circle cx="12" cy="12" r="7" stroke-width="1.7"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+   <div class="pop hide" id="menu">
+    <div><h3>Месяц</h3><div class="row">
+     <button class="btn pri" id="paid" type="button">Оплачено → в архив</button>
+     <button class="btn" id="arcBtn" type="button">Архив (0)</button>
+     <button class="btn warn" id="reset" type="button">Сбросить месяц</button></div></div>
+    <div><h3>Скачать PDF</h3><div class="row">
+     <button class="btn" data-pdf="month" type="button">Месяц</button>
+     <button class="btn" data-pdf="year" type="button">Год</button>
+     <button class="btn" data-pdf="allmonth" type="button">Все: Месяц</button>
+     <button class="btn" data-pdf="allyear" type="button">Все: Год</button></div>
+     <div class="msg pm"></div>
+     <button class="btn hide fbb" type="button">Не скачалось? Показать отчёт</button></div>
+    <div><h3>Работник</h3><div class="row">
+     <input id="empName" type="text" placeholder="Имя работника" aria-label="Имя работника">
+     <button class="btn" id="empAdd" type="button">+ Добавить</button>
+     <button class="btn warn" id="empDel" type="button">Удалить</button></div></div>
+    <div><button class="btn" id="theme" type="button">Сменить тему</button></div>
+   </div>
+  </div>
+  <div class="nav">
+   <button class="btn" id="prev" type="button" aria-label="Предыдущий месяц">‹</button>
+   <select id="mSel" aria-label="Месяц"></select>
+   <input id="ySel" type="number" min="2000" max="2100" aria-label="Год">
+   <button class="btn" id="next" type="button" aria-label="Следующий месяц">›</button>
+   <span class="sp"></span>
+   <button class="btn" id="todayBtn" type="button">Сегодня</button>
+  </div>
+  <div class="grid" id="cal"></div>
+  <div class="legend">
+   <span style="--c:var(--none)">не отмечено</span><span style="--c:var(--work)">был на работе</span>
+   <span style="--c:var(--abs)">не был</span><span style="--c:var(--sick)">больничный</span><span style="--c:var(--vac)">отпуск</span>
+  </div>
+  <p class="hint">Нажимайте на день, чтобы менять статус по кругу.</p>
+  <div class="late"><span>Опоздания за месяц</span>
+   <button class="ib sm" id="lateM" type="button" aria-label="Убрать опоздание">−</button><b id="lateN">0</b>
+   <button class="ib sm" id="lateP" type="button" aria-label="Добавить опоздание">+</button>
+   <small id="lateS"></small></div>
+ </section>
+ <section class="card">
+  <h2 id="yTitle"></h2>
+  <div class="tw"><table id="year"></table></div>
+ </section>
+</div>
+<div class="col">
+ <section class="hero" aria-live="polite">
+  <small id="hLabel"></small>
+  <div class="big" id="hNet"></div>
+  <small id="hSub"></small>
+  <div class="fc" id="hFc"></div>
+  <div class="chart">
+   <div class="chtop">
+    <div class="seg" id="chScope"><button type="button" data-ch="scope" data-v="all">Общий</button><button type="button" data-ch="scope" data-v="me">Личный</button></div>
+    <div class="seg" id="chPer"><button type="button" data-ch="per" data-v="month">Месяц</button><button type="button" data-ch="per" data-v="year">Год</button></div>
+   </div>
+   <div class="chread" id="chRead"></div>
+   <div id="chSvg"></div>
+  </div>
+ </section>
+ <section class="card">
+  <h2>Расчёт за месяц</h2>
+  <dl id="stats"></dl>
+ </section>
+</div>
+</div>
+
+<div id="setov" class="ov hide"><div class="ovc setc">
+ <div class="ovh"><b>Настройки</b><button class="btn" id="setX" type="button">Закрыть</button></div>
+ <div class="f">
+  <label>Режим расчёта
+   <select data-k="mode"><option value="salary">Оклад пропорционально дням</option><option value="rate">Ставка за день</option></select></label>
+  <label id="lSalary">Оклад за месяц<input type="number" min="0" step="any" data-k="salary" inputmode="decimal"></label>
+  <label id="lRate">Ставка за день<input type="number" min="0" step="any" data-k="rate" inputmode="decimal"></label>
+  <label>Валюта
+   <select data-k="currency"><option>₸</option><option>₽</option><option>$</option><option>€</option><option>сом</option><option>грн</option><option>BYN</option></select></label>
+  <label>Оплата больничного, %<input type="number" min="0" max="100" step="any" data-k="sickPct" inputmode="decimal"></label>
+  <label>Оплата отпуска, %<input type="number" min="0" max="100" step="any" data-k="vacPct" inputmode="decimal"></label>
+  <label>Налог / удержания, %<input type="number" min="0" max="100" step="any" data-k="tax" inputmode="decimal"></label>
+  <label>Штраф за одно опоздание<input type="number" min="0" step="any" data-k="lateFine" inputmode="decimal"></label>
+ </div>
+ <h2 style="margin-top:16px">Выходные дни недели</h2>
+ <div class="offs" id="offs"></div>
+ <h2 style="margin-top:16px">Аванс и премия за выбранный месяц</h2>
+ <div class="f">
+  <label>Премия<input type="number" min="0" step="any" id="bonus" inputmode="decimal"></label>
+  <label>Аванс (вычитается)<input type="number" min="0" step="any" id="adv" inputmode="decimal"></label>
+ </div>
+ <h2 style="margin-top:16px">Подпись в документе</h2>
+ <div class="f"><label>ФИО руководителя<input type="text" id="mgr" placeholder="Например: Иванов И.И."></label></div>
+ <div class="offs"><label><input type="checkbox" id="signEmp">Печатать ФИО работника в подписи</label></div>
+ <h2 style="margin-top:16px">Резервная копия (все работники)</h2>
+ <div class="row" style="margin-top:0">
+  <button class="btn pri" id="exp" type="button">Сохранить копию</button>
+  <button class="btn" id="imp" type="button">Загрузить копию из текста</button>
+  <label class="btn" style="cursor:pointer">Выбрать файл<input type="file" id="impf" accept=".json,application/json" hidden></label>
+ </div>
+ <textarea id="box" placeholder="Здесь появится копия. Для переноса на другое устройство вставьте сюда копию и нажмите «Загрузить копию из текста»." aria-label="Копия данных"></textarea>
+ <div class="msg" id="msg"></div>
+ <h2 style="margin:14px 0 8px">Пароль входа</h2>
+ <div class="row" style="margin-top:0"><input type="password" id="np" placeholder="Новый пароль" autocomplete="new-password"><button class="btn" id="chp" type="button">Сменить пароль</button></div>
+ <p class="hint">Копия содержит всех работников, их данные и пароль. На новом устройстве загрузите копию, и всё появится как здесь.</p>
+</div></div>
+
+<div id="arcov" class="ov hide"><div class="ovc">
+ <div class="ovh"><b>Архив оплат</b><button class="btn" id="arcX" type="button">Закрыть</button></div>
+ <div id="arc"></div>
+ <div class="msg" id="amsg"></div>
+</div></div>
+
+<footer class="foot">Данные хранятся только на этом устройстве</footer>
+<div id="lock" class="ov lockov"><div class="ovc lockc">
+ <h1>Табель и расчёт зарплаты</h1><p id="lk1" class="hint" style="margin:0"></p>
+ <input type="password" id="pw" placeholder="Пароль" autocomplete="current-password">
+ <input type="password" id="pw2" class="hide" placeholder="Повторите пароль" autocomplete="new-password">
+ <button class="btn pri" id="lkb" type="button">Войти</button><div class="msg" id="lkm"></div>
+</div></div>
+<script>
+/* ===== Данные и хранение ===== */
+const KEY = 'tabel-zp-v1';
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const WD = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];   // порядок отображения
+const WD_JS = [1,2,3,4,5,6,0];                        // соответствие getDay()
+const LABELS = ['', 'был', 'нет', 'бол.', 'отп.'];    // статусы 0..4
+const DEFAULTS = () => ({
+  settings: {mode:'salary', salary:300000, rate:10000, currency:'₸', sickPct:0, vacPct:100, tax:10, lateFine:0, off:[0,6], theme:'auto'},
+  days: {}, adj: {}
+});
+function merge(d, raw){
+  Object.assign(d.settings, raw.settings || {});
+  d.days = raw.days || {}; d.adj = raw.adj || {};
+  return d;
+}
+const KEY2 = 'tabel-zp-v2';
+const newEmp = name => ({id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), name, data: DEFAULTS()});
+function loadDB(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(KEY2) || 'null');
+    if(raw && raw.emps && raw.emps.length){
+      raw.emps.forEach(e => e.data = merge(DEFAULTS(), e.data || {}));
+      return Object.assign({cur: raw.emps[0].id, pass: '', theme: 'auto', archive: []}, raw);
+    }
+  }catch(e){}
+  const first = newEmp('Работник 1');
+  try{ const v1 = JSON.parse(localStorage.getItem(KEY) || 'null'); if(v1) first.data = merge(DEFAULTS(), v1); }catch(e){}
+  return {emps: [first], cur: first.id, pass: '', theme: first.data.settings.theme || 'auto', archive: []};
+}
+let DB = loadDB();
+const curEmp = () => DB.emps.find(e => e.id === DB.cur) || DB.emps[0];
+function save(){ try{ localStorage.setItem(KEY2, JSON.stringify(DB)); }catch(e){} }
+
+let S = curEmp().data;   // S — данные выбранного работника
+const now = new Date();
+let view = {y: now.getFullYear(), m: now.getMonth()};
+const $ = s => document.querySelector(s);
+
+/* ===== Вспомогательные функции ===== */
+const pad = n => String(n).padStart(2,'0');
+const mk = (y,m) => y + '-' + pad(m+1);
+const dk = (y,m,d) => mk(y,m) + '-' + pad(d);
+const dim = (y,m) => new Date(y, m+1, 0).getDate();   // учитывает високосные годы
+const r2 = n => Math.round((n + Number.EPSILON) * 100) / 100;
+const nf = new Intl.NumberFormat('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+const money = n => nf.format(r2(n)) + '\u00A0' + S.settings.currency;
+const num = v => { const x = parseFloat(v); return isFinite(x) ? x : 0; };
+
+/* ===== Логика расчёта ===== */
+function calc(y, m){
+  const s = S.settings, n = dim(y, m);
+  const t0 = new Date(); t0.setHours(0,0,0,0);
+  let sched=0, work=0, abs=0, sick=0, vac=0, free=0;
+  for(let d=1; d<=n; d++){
+    const dt = new Date(y, m, d);
+    const off = s.off.includes(dt.getDay());
+    const st = S.days[dk(y,m,d)] || 0;
+    if(!off) sched++;
+    if(st===1) work++; else if(st===2) abs++; else if(st===3) sick++; else if(st===4) vac++;
+    else if(!off && dt >= t0) free++;       // неотмеченные рабочие дни впереди
+  }
+  const rate = s.mode==='salary' ? (sched ? s.salary/sched : 0) : s.rate;
+  const sp = s.sickPct/100, vp = s.vacPct/100;
+  const earned = rate * (work + sick*sp + vac*vp);
+  const lost = rate * (abs + sick*(1-sp) + vac*(1-vp));
+  const tax = earned * s.tax/100;
+  const a = S.adj[mk(y,m)] || {};
+  const bonus = a.bonus || 0, adv = a.advance || 0, late = a.late || 0, fine = late * (s.lateFine || 0);
+  const net = earned - tax + bonus - adv - fine;
+  const fGross = earned + rate*free;
+  const fNet = fGross*(1 - s.tax/100) + bonus - adv - fine;
+  return {sched, work, abs, sick, vac, free, rate, earned, lost, tax, bonus, adv, late, fine, net, fNet};
+}
+
+/* ===== Отрисовка ===== */
+function renderCal(){
+  const {y, m} = view, n = dim(y, m);
+  const lead = (new Date(y, m, 1).getDay() + 6) % 7;   // неделя с понедельника
+  let h = WD.map(w => `<div class="hd">${w}</div>`).join('');
+  h += '<div class="ph"></div>'.repeat(lead);
+  for(let d=1; d<=n; d++){
+    const dt = new Date(y, m, d);
+    const st = S.days[dk(y,m,d)] || 0;
+    const off = S.settings.off.includes(dt.getDay());
+    const isToday = dt.toDateString() === now.toDateString();
+    h += `<button type="button" class="d s${st}${off?' off':''}${isToday?' today':''}" data-d="${d}" aria-label="${d} ${MONTHS[m]}: ${LABELS[st]||'не отмечено'}"><b>${d}</b><i>${LABELS[st]}</i></button>`;
+  }
+  $('#cal').innerHTML = h;
+  $('#mSel').value = m; $('#ySel').value = y;
+}
+function renderStats(){
+  const {y, m} = view, c = calc(y, m), s = S.settings;
+  $('#hLabel').textContent = `${curEmp().name}: к выплате за ${MONTHS[m].toLowerCase()} ${y}`;
+  $('#hNet').textContent = money(c.net);
+  $('#hSub').textContent = `Начислено ${money(c.earned)}, удержано ${money(c.tax + c.fine)}`;
+  $('#hFc').textContent = c.free ? `Если отработать оставшиеся рабочие дни (${c.free}): ${money(c.fNet)}` : '';
+  const rows = [
+    ['Рабочих дней по графику', c.sched],
+    ['Отработано дней', c.work],
+    ['Пропущено дней', c.abs],
+    ['Больничных дней', c.sick],
+    ['Дней отпуска', c.vac],
+    ['Дневная ставка', money(c.rate)],
+    ['Начислено', money(c.earned)],
+    ['Налог / удержания', money(c.tax), 1],
+    ['Премия', money(c.bonus)],
+    ['Аванс', money(c.adv), 1],
+    ['Штраф за опоздания' + (c.late ? ` (${c.late})` : ''), money(c.fine), 1],
+    ['Недополучено за пропуски', money(c.lost), 1]
+  ];
+  $('#stats').innerHTML = rows.map(r => `<dt>${r[0]}</dt><dd${r[2]?' class="neg"':''}>${r[1]}</dd>`).join('');
+}
+function renderYear(){
+  const y = view.y; let tw=0, tn=0, tt=0;
+  let b = '';
+  for(let m=0; m<12; m++){
+    const c = calc(y, m);
+    tw += c.work; tn += c.earned; tt += c.net;
+    b += `<tr class="${m===view.m?'cur':''}"><td>${MONTHS[m]}</td><td>${c.work}</td><td>${money(c.earned)}</td><td>${money(c.net)}</td></tr>`;
+  }
+  $('#yTitle').textContent = 'Статистика за ' + y + ' год';
+  $('#year').innerHTML = `<thead><tr><th>Месяц</th><th>Дней</th><th>Начислено</th><th>К выплате</th></tr></thead><tbody>${b}</tbody>
+   <tfoot><tr><td>Итого</td><td>${tw}</td><td>${money(tn)}</td><td>${money(tt)}</td></tr></tfoot>`;
+}
+function renderForm(){
+  const s = S.settings;
+  document.querySelectorAll('[data-k]').forEach(el => el.value = s[el.dataset.k]);
+  $('#lSalary').classList.toggle('hide', s.mode !== 'salary');
+  $('#lRate').classList.toggle('hide', s.mode !== 'rate');
+  const a = S.adj[mk(view.y, view.m)] || {};
+  $('#bonus').value = a.bonus || ''; $('#adv').value = a.advance || '';
+  $('#mgr').value = DB.mgr || ''; $('#signEmp').checked = !!DB.signEmp;
+  $('#offs').innerHTML = WD.map((w,i) =>
+    `<label><input type="checkbox" data-w="${WD_JS[i]}" ${s.off.includes(WD_JS[i])?'checked':''}>${w}</label>`).join('');
+}
+let CH={scope:'all',per:'month',sel:null,key:'',N:0,yr:false};
+const SH=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+function renderChart(){
+  const {y,m}=view, all=CH.scope==='all', emps=all?DB.emps:[curEmp()], cur=DB.emps[0].data.settings.currency;
+  const run=(e,f)=>{const k=S;S=e.data;try{return f()}finally{S=k}};
+  const yr=CH.per==='year', n=dim(y,m); let vals=[],inc=[],labs=[];
+  if(yr){ vals=SH.map((_,i)=>emps.reduce((a,e)=>a+run(e,()=>calc(y,i).net),0)); labs=SH; }
+  else{
+    const P=emps.map(e=>run(e,()=>({r:calc(y,m).rate,s:S.settings,d:S.days}))); let acc=0;
+    for(let d=1;d<=n;d++){ const x=P.reduce((a,p)=>{const st=p.d[dk(y,m,d)]||0;return a+p.r*(st===1?1:st===3?p.s.sickPct/100:st===4?p.s.vacPct/100:0)},0); acc+=x; inc.push(x); vals.push(acc); labs.push(d); }
+  }
+  const key=[y,m,CH.scope,CH.per,DB.cur].join(), anim=key!==CH.key; if(anim){CH.key=key;CH.sel=null}
+  const N=vals.length, t=new Date(), isCur=t.getFullYear()===y&&t.getMonth()===m; CH.N=N; CH.yr=yr;
+  let sel=CH.sel; if(sel==null||sel>=N) sel=yr?m:(isCur?t.getDate()-1:N-1);
+  const B=142,X0=14,PW=372,mx=Math.max(...vals,1); let g='';
+  if(yr){ const st=PW/12,bw=18;
+    vals.forEach((v,i)=>{const x=X0+st*i+(st-bw)/2,h=Math.max(v,0)/mx*128+4,on=i===sel;
+      g+=`<rect x="${x}" y="${B-132}" width="${bw}" height="132" rx="9" style="fill:var(--none)"/><rect class="bar" style="--i:${i};${on?'fill:url(#cg)':'fill:var(--hill1);opacity:.55'}" x="${x}" y="${B-h}" width="${bw}" height="${h}" rx="9"/>`});
+    labs.forEach((l,i)=>g+=`<text x="${X0+st*i+st/2}" y="159" text-anchor="middle"${i===sel?' style="fill:var(--ink);font-weight:600"':''}>${l}</text>`);
+  }else{
+    const dx=PW/Math.max(N-1,1),px=i=>X0+i*dx,py=v=>B-v/mx*120-2;
+    let p=`M${px(0)} ${py(vals[0])}`; for(let i=1;i<N;i++){const c=(px(i-1)+px(i))/2;p+=`C${c} ${py(vals[i-1])} ${c} ${py(vals[i])} ${px(i)} ${py(vals[i])}`}
+    g+=[0,1,2].map(k=>`<line x1="${X0}" x2="${X0+PW}" y1="${B-k*60}" y2="${B-k*60}" style="stroke:var(--line)"/>`).join('')
+     +`<path class="fa" d="${p}L${px(N-1)} ${B}L${px(0)} ${B}Z" fill="url(#ag)"/><path class="ln" pathLength="1" d="${p}" fill="none" style="stroke:var(--acc)" stroke-width="2.5" stroke-linecap="round"/>`
+     +`<line x1="${px(sel)}" x2="${px(sel)}" y1="8" y2="${B}" style="stroke:var(--ink)" stroke-dasharray="3 4" opacity=".35"/><circle cx="${px(sel)}" cy="${py(vals[sel])}" r="5.5" style="fill:var(--solid);stroke:var(--acc)" stroke-width="2.5"/>`;
+    labs.forEach((l,i)=>{if(l===1||l%5===0)g+=`<text x="${px(i)}" y="159" text-anchor="middle">${l}</text>`});
+  }
+  $('#chSvg').innerHTML=`<svg viewBox="0 0 400 166" class="${anim?'an':''}" role="img" aria-label="График"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--hill1)"/><stop offset="1" style="stop-color:var(--acc)"/></linearGradient><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--hill1);stop-opacity:.55"/><stop offset="1" style="stop-color:var(--hill1);stop-opacity:0"/></linearGradient></defs>${g}</svg>`;
+  const who=all?`Все работники (${DB.emps.length})`:esc(curEmp().name||'Без имени');
+  $('#chRead').innerHTML=`<div><small>${who}</small><b>${fmc(vals[sel],cur)}</b></div><small class="r">`+(yr
+    ?`${MONTHS[sel]}: к выплате<br>за год ${fmc(vals.reduce((a,b)=>a+b,0),cur)}`
+    :`${labs[sel]} ${SH[m]}: начислено с начала месяца<br>за день +${fmc(inc[sel],cur)}`)+`</small>`;
+  document.querySelectorAll('.seg button').forEach(b=>{const on=b.dataset.v===CH[b.dataset.ch];b.classList.toggle('on',on);b.setAttribute('aria-pressed',on)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{CH[b.dataset.ch]=b.dataset.v;renderChart()});
+{const el=$('#chSvg'),pick=e=>{if(!CH.N)return;const r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*400-14;
+  const i=Math.max(0,Math.min(CH.N-1,CH.yr?Math.floor(x/31):Math.round(x/(372/Math.max(CH.N-1,1)))));if(i!==CH.sel){CH.sel=i;renderChart()}};
+ el.addEventListener('pointerdown',pick);el.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'||e.buttons)pick(e)});}
+function renderLate(){
+  const c = calc(view.y, view.m), f = S.settings.lateFine || 0;
+  $('#lateN').textContent = c.late;
+  $('#lateS').textContent = f ? `× ${money(f)} = ${money(c.fine)}` : 'Задайте штраф в настройках (⚙)';
+}
+function stepLate(d){
+  const a = S.adj[mk(view.y, view.m)] || (S.adj[mk(view.y, view.m)] = {});
+  a.late = Math.max(0, Math.min(99, (a.late || 0) + d)); save(); render();
+}
+$('#lateM').onclick = () => stepLate(-1); $('#lateP').onclick = () => stepLate(1);
+function render(){ renderLate(); renderCal(); renderStats(); renderYear(); renderHome(); renderEmpBar(); renderChart(); }
+
+/* ===== События ===== */
+$('#cal').addEventListener('click', e => {
+  const b = e.target.closest('.d'); if(!b) return;
+  const k = dk(view.y, view.m, +b.dataset.d);
+  const next = ((S.days[k] || 0) + 1) % 5;            // 0→1→2→3→4→0
+  if(next) S.days[k] = next; else delete S.days[k];
+  save(); render();
+});
+function go(dm){
+  let m = view.m + dm, y = view.y;
+  if(m < 0){ m = 11; y--; } else if(m > 11){ m = 0; y++; }
+  view = {y, m}; renderForm(); render();
+}
+$('#prev').onclick = () => go(-1);
+$('#next').onclick = () => go(1);
+$('#todayBtn').onclick = () => { view = {y: now.getFullYear(), m: now.getMonth()}; renderForm(); render(); };
+$('#mSel').innerHTML = MONTHS.map((n,i) => `<option value="${i}">${n}</option>`).join('');
+$('#mSel').onchange = e => { view.m = +e.target.value; renderForm(); render(); };
+$('#ySel').onchange = e => { const y = parseInt(e.target.value); if(y >= 2000 && y <= 2100){ view.y = y; renderForm(); } render(); };
+
+document.querySelectorAll('[data-k]').forEach(el => el.addEventListener('input', () => {
+  const k = el.dataset.k;
+  S.settings[k] = el.tagName==='SELECT' && (k==='mode'||k==='currency') ? el.value : num(el.value);
+  if(k==='mode'){ $('#lSalary').classList.toggle('hide', el.value!=='salary'); $('#lRate').classList.toggle('hide', el.value!=='rate'); }
+  save(); render();
+}));
+$('#offs').addEventListener('change', () => {
+  S.settings.off = [...document.querySelectorAll('[data-w]')].filter(c => c.checked).map(c => +c.dataset.w);
+  save(); render();
+});
+function setAdj(){
+  const k = mk(view.y, view.m);
+  S.adj[k] = {...(S.adj[k] || {}), bonus: num($('#bonus').value), advance: num($('#adv').value)};
+  save(); render();
+}
+$('#bonus').oninput = setAdj; $('#adv').oninput = setAdj;
+$('#mgr').oninput = e => { DB.mgr = e.target.value; save(); };
+$('#signEmp').onchange = e => { DB.signEmp = e.target.checked; save(); };
+
+// Сброс месяца: подтверждение вторым нажатием
+let rt;
+$('#reset').onclick = e => {
+  const b = e.currentTarget;
+  if(b.dataset.arm){
+    clearTimeout(rt); delete b.dataset.arm; b.textContent = 'Сбросить месяц';
+    const p = mk(view.y, view.m) + '-';
+    Object.keys(S.days).filter(k => k.startsWith(p)).forEach(k => delete S.days[k]);
+    delete S.adj[mk(view.y, view.m)];
+    save(); renderForm(); render();
+  }else{
+    b.dataset.arm = 1; b.textContent = 'Точно сбросить? Нажмите ещё раз';
+    rt = setTimeout(() => { delete b.dataset.arm; b.textContent = 'Сбросить месяц'; }, 4000);
+  }
+};
+
+// Тема: авто по системе, ручное переключение
+function applyTheme(){
+  const t = DB.theme;
+  if(t==='auto') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.setAttribute('data-theme', t);
+}
+$('#theme').onclick = () => {
+  const dark = document.documentElement.dataset.theme
+    ? document.documentElement.dataset.theme === 'dark'
+    : matchMedia('(prefers-color-scheme: dark)').matches;
+  DB.theme = dark ? 'light' : 'dark';
+  applyTheme(); save();
+};
+
+/* ===== PDF-накладная (рисуем лист A4 на canvas и вкладываем в PDF) ===== */
+function invoice(ctx, W, H){
+  const yr = view.y, mo = view.m, c = calc(yr, mo), s = S.settings, cur = s.currency;
+  const FONT = 'Arial,Helvetica,"Liberation Sans",sans-serif';
+  const X0 = 48, X1 = W - 48;
+  const v = n => nf.format(r2(n));
+  const tx = (t, x, y, sz = 13, b = false, al = 'left', col = '#111') => {
+    ctx.font = (b ? 'bold ' : '') + sz + 'px ' + FONT; ctx.textAlign = al; ctx.fillStyle = col; ctx.fillText(t, x, y);
+  };
+  const ln = (x1, y1, x2, y2, w = 1, col = '#111') => {
+    ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  };
+  const t = new Date();
+  const date = `${pad(t.getDate())}.${pad(t.getMonth()+1)}.${t.getFullYear()}`;
+  const no = `${yr}${pad(mo+1)}-${String(Math.abs(Math.round(c.net)) % 10000).padStart(4,'0')}`;
+
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+
+  // Заголовок
+  tx('РАСЧЁТ ЗАРПЛАТЫ № ' + no, X0, 84, 24, true);
+  tx('от ' + date, X0, 110, 14);
+  ln(X0, 126, X1, 126, 2);
+
+  // Работник, период, режим
+  const cx = X0 + 364;
+  tx('Работник:', X0, 162, 13, true); ln(X0 + 70, 166, X0 + 330, 166); tx(curEmp().name, X0 + 74, 161, 13);
+  tx('(ФИО)', X0 + 70, 180, 10, false, 'left', '#777');
+  tx('Период:', cx, 162, 13, true); tx(MONTHS[mo] + ' ' + yr, cx + 70, 162);
+  tx('Режим расчёта:', X0, 212, 13, true);
+  tx(s.mode === 'salary' ? 'оклад / рабочие дни' : 'ставка за день', X0 + 110, 212);
+
+  // Таблица
+  const cols = [40, 300, 60, 70, 110, 118];
+  const xs = [X0]; cols.forEach(w => xs.push(xs[xs.length-1] + w));
+  const T = 244, HH = 36, RH = 34;
+  const rows = [
+    ['1', 'Отработанные дни', 'дн.', c.work, c.rate, c.rate * c.work],
+    ['2', `Больничные дни (оплата ${s.sickPct}%)`, 'дн.', c.sick, c.rate * s.sickPct/100, c.rate * c.sick * s.sickPct/100],
+    ['3', `Дни отпуска (оплата ${s.vacPct}%)`, 'дн.', c.vac, c.rate * s.vacPct/100, c.rate * c.vac * s.vacPct/100],
+    ['4', 'Пропущенные дни (не оплачиваются)', 'дн.', c.abs, 0, 0]
+  ];
+  const bottom = T + HH + RH * rows.length;
+  ctx.fillStyle = '#E6E6E6'; ctx.fillRect(X0, T, X1 - X0, HH);
+  ['№', 'Наименование', 'Ед.', 'Кол-во', 'Цена, ' + cur, 'Сумма, ' + cur].forEach((h, i) =>
+    tx(h, xs[i] + cols[i]/2, T + 23, 12, true, 'center'));
+  rows.forEach((r, j) => {
+    const y = T + HH + RH * j + 22;
+    tx(r[0], xs[0] + cols[0]/2, y, 13, false, 'center');
+    tx(r[1], xs[1] + 8, y);
+    tx(r[2], xs[2] + cols[2]/2, y, 13, false, 'center');
+    tx(String(r[3]), xs[3] + cols[3] - 8, y, 13, false, 'right');
+    tx(v(r[4]), xs[4] + cols[4] - 8, y, 13, false, 'right');
+    tx(v(r[5]), xs[5] + cols[5] - 8, y, 13, true, 'right');
+  });
+  for(let j = 0; j <= rows.length + 1; j++){
+    const y = j === 0 ? T : T + HH + RH * (j - 1);
+    ln(X0, y, X1, y);
+  }
+  xs.forEach(x => ln(x, T, x, bottom));
+  ln(X0, T, X0, bottom, 1.5); ln(X1, T, X1, bottom, 1.5);
+
+  // Итоги
+  let y = bottom + 34;
+  const side = [
+    ['Рабочих дней по графику:', String(c.sched)],
+    ['Дневная ставка:', v(c.rate) + ' ' + cur],
+    ['Недополучено за пропуски:', v(c.lost) + ' ' + cur],
+    ['Всего наименований:', '4']
+  ];
+  side.forEach((r, i) => { tx(r[0], X0, y + i*24, 12, false, 'left', '#444'); tx(r[1], X0 + 250, y + i*24, 12, true, 'right'); });
+  const tot = [
+    ['Итого начислено:', v(c.earned)],
+    [`Налог / удержания (${s.tax}%):`, '-' + v(c.tax)],
+    ['Премия:', '+' + v(c.bonus)],
+    ['Аванс:', '-' + v(c.adv)]
+  ];
+  if(c.fine) tot.push([`Штраф за опоздания (${c.late}):`, '-' + v(c.fine)]);
+  tot.forEach((r, i) => { tx(r[0], X1 - 140, y + i*24, 13, false, 'right'); tx(r[1], X1 - 8, y + i*24, 13, true, 'right'); });
+  y += tot.length*24 + 8;
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.strokeRect(X1 - 330, y - 4, 330, 40);
+  tx('К ВЫПЛАТЕ:', X1 - 318, y + 23, 15, true);
+  tx(v(c.net) + ' ' + cur, X1 - 10, y + 24, 17, true, 'right');
+
+  // Отметки в календаре: простой текст с процентами
+  y += 90;
+  tx('Отметки в календаре', X0, y, 13, true); y += 28;
+  const NM = ['Не отмечено', 'Был на работе', 'Не был', 'Больничный', 'Отпуск'], cnt = [0,0,0,0,0];
+  const nD = dim(yr, mo);
+  for(let d = 1; d <= nD; d++){ cnt[S.days[dk(yr, mo, d)] || 0]++; }
+  [1, 2, 3, 4, 0].forEach(k => {
+    if(!cnt[k]) return;
+    tx(NM[k] + ':', X0, y, 13, false, 'left', '#444');
+    tx(cnt[k] + ' дн. · ' + Math.round(cnt[k] / nD * 100) + '%', X0 + 250, y, 13, true, 'right');
+    y += 24;
+  });
+
+  pageSign(ctx, W, H - 120);
+}
+
+// Минимальный PDF: одна страница с JPEG-изображением листа
+function makePdf(jpeg, pw, ph, w, h){
+  const te = new TextEncoder(), parts = [], offs = []; let len = 0;
+  const add = x => { const b = typeof x === 'string' ? te.encode(x) : x; parts.push(b); len += b.length; };
+  const obj = (n, dict, stream) => {
+    offs[n] = len; add(`${n} 0 obj\n${dict}\n`);
+    if(stream){ add('stream\n'); add(stream); add('\nendstream\n'); }
+    add('endobj\n');
+  };
+  const cs = `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`;
+  add('%PDF-1.4\n');
+  obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+  obj(2, '<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  obj(3, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Contents 4 0 R /Resources << /XObject << /Im0 5 0 R >> >> >>`);
+  obj(4, `<< /Length ${cs.length} >>`, cs);
+  obj(5, `<< /Type /XObject /Subtype /Image /Width ${pw} /Height ${ph} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>`, jpeg);
+  const xr = len;
+  add('xref\n0 6\n0000000000 65535 f \n');
+  for(let i = 1; i <= 5; i++) add(String(offs[i]).padStart(10, '0') + ' 00000 n \n');
+  add(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF`);
+  return new Blob(parts, {type: 'application/pdf'});
+}
+
+/* ===== Общие части для отчётов (по дням и за год) ===== */
+function pen(ctx){
+  const FONT = 'Arial,Helvetica,"Liberation Sans",sans-serif';
+  return {
+    tx: (t, x, y, sz = 13, b = false, al = 'left', col = '#111') => {
+      ctx.font = (b ? 'bold ' : '') + sz + 'px ' + FONT; ctx.textAlign = al; ctx.fillStyle = col; ctx.fillText(t, x, y);
+    },
+    ln: (x1, y1, x2, y2, w = 1, col = '#111') => {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+  };
+}
+function pageHead(ctx, W, H, title, sub){
+  const {tx, ln} = pen(ctx), s = S.settings, X0 = 48, X1 = W - 48, cx = X0 + 364;
+  const t = new Date();
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  tx(title, X0, 84, 24, true); tx(sub, X0, 110, 14);
+  ln(X0, 126, X1, 126, 2);
+  tx('Режим расчёта:', X0, 160, 13, true);
+  tx(s.mode === 'salary' ? 'оклад / рабочие дни' : 'ставка за день', X0 + 110, 160);
+  tx(s.mode === 'salary' ? 'Оклад:' : 'Ставка:', cx, 160, 13, true);
+  tx(nf.format(r2(s.mode === 'salary' ? s.salary : s.rate)) + ' ' + s.currency, cx + 70, 160);
+  tx(curEmp().name, X1, 110, 14, true, 'right');
+}
+function pageSign(ctx, W, sy, all){
+  const {tx, ln} = pen(ctx), X0 = 48;
+  const mgr = (DB.mgr || '').trim(), emp = (!all && DB.signEmp) ? (curEmp().name || '').trim() : '';
+  const row = (label, y, name, showName) => {
+    tx(label, X0, y, 13, true);
+    ln(X0 + 120, y + 4, X0 + 250, y + 4);
+    tx('(подпись)', X0 + 120, y + 17, 10, false, 'left', '#777');
+    if(showName){
+      ln(X0 + 266, y + 4, X0 + 456, y + 4);
+      if(name) tx(name, X0 + 270, y - 2, 13);
+      tx('(ФИО)', X0 + 266, y + 17, 10, false, 'left', '#777');
+    }
+  };
+  row('Руководитель:', sy, mgr, true);
+  row(all ? 'Ответственный:' : 'Работник:', sy + 52, emp, !!(all || DB.signEmp));
+}
+// Таблица с рамками; o: {hh, rh, hs, fs, total, fill[]}
+function gridTable(ctx, X0, T, cols, hdr, rows, al, o){
+  const {tx, ln} = pen(ctx);
+  const xs = [X0]; cols.forEach(w => xs.push(xs[xs.length-1] + w));
+  const X1 = xs[xs.length-1], bottom = T + o.hh + o.rh * rows.length;
+  ctx.fillStyle = '#E6E6E6'; ctx.fillRect(X0, T, X1 - X0, o.hh);
+  rows.forEach((r, j) => { if(o.fill && o.fill[j]){ ctx.fillStyle = o.fill[j]; ctx.fillRect(X0, T + o.hh + o.rh*j, X1 - X0, o.rh); } });
+  hdr.forEach((h, i) => tx(h, xs[i] + cols[i]/2, T + o.hh/2 + 4, o.hs || 11, true, 'center'));
+  rows.forEach((r, j) => {
+    const y = T + o.hh + o.rh*j + o.rh/2 + 4, last = o.total && j === rows.length - 1;
+    r.forEach((c, i) => {
+      const x = al[i] === 'center' ? xs[i] + cols[i]/2 : al[i] === 'right' ? xs[i] + cols[i] - 8 : xs[i] + 8;
+      tx(c, x, y, o.fs || 12, last, al[i]);
+    });
+  });
+  for(let j = 0; j <= rows.length + 1; j++){ const y = j === 0 ? T : T + o.hh + o.rh*(j-1); ln(X0, y, X1, y); }
+  xs.forEach(x => ln(x, T, x, bottom));
+  return bottom;
+}
+
+/* ===== Отчёт по дням ===== */
+function daysReport(ctx, W, H){
+  const yr = view.y, mo = view.m, c = calc(yr, mo), s = S.settings, cur = s.currency, n = dim(yr, mo);
+  const {tx} = pen(ctx), v = x => nf.format(r2(x)), X1 = W - 48;
+  pageHead(ctx, W, H, 'ВЕДОМОСТЬ ПО ДНЯМ', `${MONTHS[mo]} ${yr}`);
+  const WDN = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+  const SN = ['не отмечено','был на работе','не был','больничный','отпуск'];
+  const COL = [null,'#E3F4EA','#FBE3E1','#FBF1D4','#E1ECFB'];
+  const rows = [], fill = [];
+  for(let d = 1; d <= n; d++){
+    const dt = new Date(yr, mo, d), st = S.days[dk(yr, mo, d)] || 0;
+    const off = s.off.includes(dt.getDay());
+    const share = st === 1 ? 1 : st === 3 ? s.sickPct/100 : st === 4 ? s.vacPct/100 : 0;
+    const pay = c.rate * share;
+    rows.push([String(d), `${pad(d)}.${pad(mo+1)}.${yr}`, WDN[dt.getDay()] + (off ? ' (вых.)' : ''), SN[st],
+      st ? Math.round(share*100) + '%' : '—', st && pay ? v(pay) : '—']);
+    fill.push(COL[st] || (off ? '#F4F5F7' : null));
+  }
+  rows.push(['', 'ИТОГО', '', '', '', v(c.earned)]); fill.push(null);
+  const bottom = gridTable(ctx, 48, 184, [36,96,150,150,80,186],
+    ['№','Дата','День недели','Статус','Оплата','Начислено, ' + cur], rows,
+    ['center','center','left','left','center','right'], {hh:28, rh:20, total:true, fill});
+  const y = bottom + 32;
+  tx(`К выплате с учётом налога (${s.tax}%), премии и аванса${c.fine ? ' и штрафа' : ''}:`, 48, y, 13, true);
+  tx(v(c.net) + ' ' + cur, X1, y + 1, 16, true, 'right');
+  pageSign(ctx, W, H - 110);
+}
+
+/* ===== Отчёт за год ===== */
+function yearReport(ctx, W, H){
+  const yr = view.y, s = S.settings, cur = s.currency;
+  const {tx} = pen(ctx), v = x => nf.format(r2(x)), X0 = 48, X1 = W - 48;
+  pageHead(ctx, W, H, 'ГОДОВАЯ ВЕДОМОСТЬ', `${yr} год`);
+  const rows = [], earnedList = [];
+  const T = {sched:0, work:0, abs:0, sick:0, vac:0, earned:0, tax:0, net:0};
+  for(let m = 0; m < 12; m++){
+    const c = calc(yr, m);
+    ['sched','work','abs','sick','vac','earned','tax','net'].forEach(k => T[k] += c[k]);
+    earnedList.push(c.earned);
+    rows.push([MONTHS[m], c.sched, c.work, c.abs, c.sick, c.vac, v(c.earned), v(c.tax), v(c.net)].map(String));
+  }
+  rows.push(['ИТОГО', T.sched, T.work, T.abs, T.sick, T.vac, v(T.earned), v(T.tax), v(T.net)].map(String));
+  const bottom = gridTable(ctx, X0, 184, [92,58,58,62,52,52,100,90,134],
+    ['Месяц','Раб. дней','Отраб.','Пропущ.','Бол.','Отп.','Начислено','Налог','К выплате'], rows,
+    ['left','center','center','center','center','center','right','right','right'], {hh:36, rh:30, hs:10, total:true});
+  tx('Суммы указаны в ' + cur + '. «К выплате» учитывает премию и аванс за каждый месяц.', X0, bottom + 22, 11, false, 'left', '#666');
+  let y = bottom + 62;
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.strokeRect(X1 - 360, y - 4, 360, 40);
+  tx('ИТОГО К ВЫПЛАТЕ ЗА ГОД:', X1 - 348, y + 23, 13, true);
+  tx(v(T.net) + ' ' + cur, X1 - 10, y + 24, 16, true, 'right');
+  // Диаграмма начислений по месяцам
+  y += 80;
+  tx('Начислено по месяцам', X0, y, 13, true);
+  const base = y + 190, max = Math.max(...earnedList, 1), bw = 40, gap = (X1 - X0 - 12*bw) / 11;
+  const {ln} = pen(ctx);
+  ln(X0, base, X1, base, 1, '#888');
+  earnedList.forEach((e, i) => {
+    const h = Math.round(150 * e / max), x = X0 + i*(bw + gap);
+    ctx.fillStyle = '#555'; ctx.fillRect(x, base - h, bw, h);
+    tx(MONTHS[i].slice(0, 3), x + bw/2, base + 16, 10, false, 'center', '#444');
+  });
+  pageSign(ctx, W, H - 110);
+}
+
+let DL = null;
+// Строим отчёт: возвращает PDF, JPEG-картинку и имя файла
+async function buildReport(kind){
+  const W = 794, H = 1123, K = 2;                 // A4 при 96 dpi
+  const cv = document.createElement('canvas'); cv.width = W*K; cv.height = H*K;
+  const ctx = cv.getContext('2d'); ctx.scale(K, K);
+  if(kind === 'allmonth' || kind === 'allyear') allReport(ctx, W, H, kind); else ({month: invoice, days: daysReport, year: yearReport})[kind](ctx, W, H);
+  const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', .92));
+  const jpeg = new Uint8Array(await blob.arrayBuffer());
+  const pdf = makePdf(jpeg, cv.width, cv.height, 595.28, 841.89);
+  const mm = `${view.y}-${pad(view.m+1)}`;
+  const name = {month: 'raschet-zarplaty-' + mm, days: 'vedomost-po-dnyam-' + mm, year: 'vedomost-god-' + view.y, allmonth: 'vedomost-vse-' + mm, allyear: 'vedomost-vse-god-' + view.y}[kind];
+  return {pdf, name: name + '.pdf', jpgName: name + '.jpg', img: cv.toDataURL('image/jpeg', .92)};
+}
+// Запасное окно: картинка отчёта + ссылки, работает в любом режиме
+function showFallback(r){
+  const old = document.getElementById('dlbox'); if(old) old.remove();
+  const url = URL.createObjectURL(r.pdf);
+  const o = document.createElement('div'); o.id = 'dlbox'; o.className = 'ov';
+  o.innerHTML = `<div class="ovc"><div class="ovh"><b>Отчёт готов</b><button class="btn" type="button" id="dlx">Закрыть</button></div>
+   <div class="row" style="margin:0 0 8px">
+    <a class="btn pri" href="${url}" download="${r.name}">Скачать PDF</a>
+    <a class="btn" href="${url}" target="_blank" rel="noopener">Открыть PDF</a>
+    <a class="btn" href="${r.img}" download="${r.jpgName}">Скачать как картинку</a></div>
+   <p class="hint" style="margin:0 0 10px">Если скачивание не началось, нажмите и удерживайте изображение ниже и выберите «Сохранить» или «Поделиться».</p>
+   <img src="${r.img}" alt="Отчёт"></div>`;
+  document.body.appendChild(o);
+  document.getElementById('dlx').onclick = () => { o.remove(); URL.revokeObjectURL(url); };
+}
+// Отдаём файл: 1) системное сохранение, 2) меню «Поделиться», 3) запасное окно
+async function deliver(kind){
+  const r = await buildReport(kind);
+  if(DL){
+    try{ await DL.save({filename: r.name, data: r.pdf}); return 'PDF сохранён.'; }
+    catch(e){ if(e && e.code === 'declined') return 'Сохранение отменено.'; }
+  }
+  // Прямое скачивание через ссылку (без меню «Поделиться»)
+  try{
+    const url = URL.createObjectURL(r.pdf);
+    const a = document.createElement('a'); a.href = url; a.download = r.name; a.style.display = 'none';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+    LAST = r; document.querySelectorAll('.fbb').forEach(b => b.classList.remove('hide'));
+    return 'Файл ' + r.name + ' сохраняется в «Загрузки».';
+  }catch(e){}
+  showFallback(r);
+  return 'Отчёт открыт в окне. Сохраните его кнопками выше.';
+}
+let LAST = null;
+document.querySelectorAll('.fbb').forEach(b => b.onclick = () => { if(LAST) showFallback(LAST); });
+const pmsg = t => document.querySelectorAll('.pm').forEach(e => e.textContent = t);
+document.querySelectorAll('[data-pdf]').forEach(b => b.onclick = async () => {
+  try{
+    if(!DL && window.claude && claude.use) DL = await claude.use('downloads');
+    pmsg('Готовлю PDF…'); pmsg(await deliver(b.dataset.pdf));
+  }catch(e){ pmsg('Не удалось подготовить PDF.'); }
+});
+(async () => { try{ if(window.claude && claude.use) DL = await claude.use('downloads'); }catch(e){} })();
+
+
+/* ===== Работники, главная, сводные отчёты ===== */
+const esc = t => String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmc = (n, cur) => nf.format(r2(n)) + '\u00A0' + cur;
+function empStats(e, y, m){
+  const keep = S; S = e.data;
+  try{
+    const c = calc(y, m); let yn = 0, ye = 0, yw = 0, yt = 0;
+    for(let i = 0; i < 12; i++){ const x = calc(y, i); yn += x.net; ye += x.earned; yw += x.work; yt += x.tax; }
+    return {c, yn, ye, yw, yt, cur: e.data.settings.currency};
+  } finally { S = keep; }
+}
+function renderHome(){
+  const {y, m} = view, st = DB.emps.map(e => ({e, ...empStats(e, y, m)}));
+  const cur = DB.emps[0].data.settings.currency, sum = f => st.reduce((a, x) => a + f(x), 0);
+  $('#kpi').innerHTML = `<div><small>Работников</small><b>${DB.emps.length}</b></div>
+   <div><small>Нужно выплатить за ${MONTHS[m].toLowerCase()} ${y}</small><b>${fmc(sum(x => x.c.net), cur)}</b></div>
+   <div><small>Всего за ${y} год</small><b>${fmc(sum(x => x.yn), cur)}</b></div>`;
+  $('#allT').innerHTML = `<thead><tr><th>Работник</th><th>Дней</th><th>Начислено</th><th>К выплате</th></tr></thead><tbody>` +
+    st.map(x => `<tr class="${x.e.id === DB.cur ? 'cur' : ''}" data-id="${esc(x.e.id)}" style="cursor:pointer"><td>${esc(x.e.name || 'Без имени')}</td><td>${x.c.work}</td><td>${fmc(x.c.earned, x.cur)}</td><td>${fmc(x.c.net, x.cur)}</td></tr>`).join('') + '</tbody>';
+}
+function renderEmpBar(){
+  $('#empSel').innerHTML = DB.emps.map(e => `<option value="${esc(e.id)}"${e.id === DB.cur ? ' selected' : ''}>${esc(e.name || 'Без имени')}</option>`).join('');
+  const i = $('#empName'); if(document.activeElement !== i) i.value = curEmp().name;
+}
+function switchEmp(id){ DB.cur = id; S = curEmp().data; save(); renderForm(); render(); }
+$('#allT').addEventListener('click', e => { const tr = e.target.closest('tr[data-id]'); if(tr) switchEmp(tr.dataset.id); });
+$('#empSel').onchange = e => switchEmp(e.target.value);
+$('#empName').oninput = e => { curEmp().name = e.target.value; save(); renderEmpBar(); renderHome(); };
+$('#empAdd').onclick = () => {
+  const n = newEmp('Работник ' + (DB.emps.length + 1));
+  n.data.settings = JSON.parse(JSON.stringify(S.settings));   // настройки копируем с текущего
+  DB.emps.push(n); switchEmp(n.id);
+};
+let edt;
+$('#empDel').onclick = e => {
+  const b = e.currentTarget;
+  if(DB.emps.length < 2){ b.textContent = 'Нельзя: единственный'; setTimeout(() => b.textContent = 'Удалить', 2000); return; }
+  if(b.dataset.arm){
+    clearTimeout(edt); delete b.dataset.arm; b.textContent = 'Удалить';
+    DB.emps = DB.emps.filter(x => x.id !== DB.cur); switchEmp(DB.emps[0].id);
+  }else{
+    b.dataset.arm = 1; b.textContent = 'Точно удалить? Ещё раз';
+    edt = setTimeout(() => { delete b.dataset.arm; b.textContent = 'Удалить'; }, 4000);
+  }
+};
+
+function allReport(ctx, W, H, kind){
+  const y = view.y, m = view.m, isY = kind === 'allyear', v = x => nf.format(r2(x));
+  const {tx, ln} = pen(ctx), X0 = 48, X1 = W - 48;
+  const st = DB.emps.map(e => ({e, ...empStats(e, y, m)}));
+  const cur = DB.emps[0].data.settings.currency, sum = f => st.reduce((a, x) => a + f(x), 0);
+  ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
+  tx(isY ? 'СВОДНАЯ ВЕДОМОСТЬ ЗА ГОД' : 'СВОДНАЯ ВЕДОМОСТЬ', X0, 84, 24, true);
+  tx(isY ? `${y} год` : `${MONTHS[m]} ${y}`, X0, 110, 14);
+  tx('Работников: ' + st.length, X1, 110, 14, true, 'right');
+  ln(X0, 126, X1, 126, 2);
+  const nm = x => String(x.e.name || 'Без имени').slice(0, 28);
+  let rows, cols, hdr, al;
+  if(isY){
+    rows = st.map((x, i) => [String(i+1), nm(x), String(x.yw), v(x.ye), v(x.yt), v(x.yn)]);
+    rows.push(['', 'ИТОГО', String(sum(x => x.yw)), v(sum(x => x.ye)), v(sum(x => x.yt)), v(sum(x => x.yn))]);
+    cols = [36,230,90,116,100,126]; hdr = ['№','Работник','Отраб. дней','Начислено','Налог','К выплате'];
+    al = ['center','left','center','right','right','right'];
+  }else{
+    rows = st.map((x, i) => [String(i+1), nm(x), String(x.c.work), String(x.c.abs), v(x.c.earned), v(x.c.tax), v(x.c.net)]);
+    rows.push(['', 'ИТОГО', String(sum(x => x.c.work)), String(sum(x => x.c.abs)), v(sum(x => x.c.earned)), v(sum(x => x.c.tax)), v(sum(x => x.c.net))]);
+    cols = [36,200,72,72,110,90,118]; hdr = ['№','Работник','Отраб.','Пропущ.','Начислено','Налог','К выплате'];
+    al = ['center','left','center','center','right','right','right'];
+  }
+  const rh = Math.max(16, Math.min(26, Math.floor((H - 184 - 36 - 200) / rows.length)));
+  const bottom = gridTable(ctx, X0, 150, cols, hdr, rows, al, {hh:36, rh, fs: rh < 20 ? 10 : 12, hs:10, total:true});
+  const total = isY ? sum(x => x.yn) : sum(x => x.c.net), y0 = bottom + 34;
+  tx('Суммы указаны в ' + cur + '. «К выплате» учитывает налог, премии и авансы.', X0, bottom + 18, 10, false, 'left', '#666');
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.strokeRect(X1 - 360, y0, 360, 40);
+  tx('ВСЕГО К ВЫПЛАТЕ:', X1 - 348, y0 + 26, 13, true);
+  tx(v(total) + ' ' + cur, X1 - 10, y0 + 27, 16, true, 'right');
+  pageSign(ctx, W, H - 110, true);
+}
+
+/* ===== Резервная копия ===== */
+const say = t => $('#msg').textContent = t;
+async function saveBlob(blob, name){
+  if(DL){ try{ await DL.save({filename: name, data: blob}); return true; }catch(e){ if(e && e.code === 'declined') return true; } }
+  try{
+    const u = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = u; a.download = name; a.style.display = 'none'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(u), 30000); return true;
+  }catch(e){ return false; }
+}
+$('#exp').onclick = async () => {
+  const d = new Date();
+  const txt = JSON.stringify({...DB, files: await packFiles()});
+  $('#box').value = txt.length < 300000 ? txt : '(Копия большая, так как содержит PDF из архива. Используйте сохранённый файл.)';
+  const ok = await saveBlob(new Blob([txt], {type: 'application/json'}), `tabel-backup-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`);
+  say((ok ? 'Копия сохранена в файл. ' : 'Файл не сохранился. ') + 'Работников: ' + DB.emps.length + ', записей в архиве: ' + DB.archive.length + '.');
+};
+function doImport(txt){
+  try{
+    const d = JSON.parse(txt); const files = d.files; delete d.files;
+    if(!d || !Array.isArray(d.emps) || !d.emps.length) throw 0;
+    d.emps.forEach(e => { e.id = String(e.id || newEmp('').id); e.name = String(e.name || 'Работник'); e.data = merge(DEFAULTS(), e.data || {}); });
+    DB = Object.assign({cur: d.emps[0].id, pass: '', theme: 'auto', archive: []}, d); if(files) restoreFiles(files);
+    if(!DB.emps.some(e => e.id === DB.cur)) DB.cur = DB.emps[0].id;
+    S = curEmp().data; save(); applyTheme(); renderForm(); render(); renderArchive();
+    say('Копия загружена. Работников: ' + DB.emps.length + (DB.pass ? '. Пароль теперь как в копии.' : '.'));
+  }catch(e){ say('Не удалось прочитать копию. Проверьте текст или файл.'); }
+}
+$('#imp').onclick = () => doImport($('#box').value);
+$('#impf').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader(); r.onload = () => { $('#box').value = r.result; doImport(r.result); }; r.readAsText(f);
+};
+
+/* ===== Пароль ===== */
+async function hashPw(p){
+  try{
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('tabel|' + p));
+    return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+  }catch(e){ let h = 5381; for(const ch of 'tabel|' + p) h = ((h << 5) + h + ch.charCodeAt(0)) | 0; return 'x' + h; }
+}
+$('#chp').onclick = async () => {
+  const p = $('#np').value;
+  if(p.length < 4){ say('Пароль не короче 4 символов.'); return; }
+  DB.pass = await hashPw(p); save(); $('#np').value = ''; say('Пароль изменён.');
+};
+function initLock(){
+  document.body.classList.add('locked');
+  const first = !DB.pass, m = t => $('#lkm').textContent = t;
+  $('#lk1').textContent = first ? 'Придумайте пароль для входа (не короче 4 символов).' : 'Введите пароль.';
+  $('#pw2').classList.toggle('hide', !first);
+  $('#lkb').textContent = first ? 'Установить и войти' : 'Войти';
+  const go = async () => {
+    const p = $('#pw').value;
+    if(first){
+      if(p.length < 4){ m('Пароль не короче 4 символов.'); return; }
+      if(p !== $('#pw2').value){ m('Пароли не совпадают.'); return; }
+      DB.pass = await hashPw(p); save();
+    }else if(await hashPw(p) !== DB.pass){ m('Неверный пароль.'); $('#pw').value = ''; return; }
+    document.body.classList.remove('locked'); $('#pw').value = ''; $('#pw2').value = '';
+  };
+  $('#lkb').onclick = go;
+  [$('#pw'), $('#pw2')].forEach(i => i.onkeydown = e => { if(e.key === 'Enter') go(); });
+  $('#pw').focus();
+}
+
+
+/* ===== Архив оплат ===== */
+// Файлы (PDF и подписанные сканы) хранятся в IndexedDB этого браузера
+const idb = {
+  db: null,
+  open(){ return new Promise((res, rej) => { if(this.db) return res(this.db);
+    const r = indexedDB.open('tabel-files', 1); r.onupgradeneeded = () => r.result.createObjectStore('f');
+    r.onsuccess = () => { this.db = r.result; res(r.result); }; r.onerror = () => rej(r.error); }); },
+  async put(k, v){ const d = await this.open(); return new Promise((res, rej) => { const t = d.transaction('f', 'readwrite'); t.objectStore('f').put(v, k); t.oncomplete = res; t.onerror = () => rej(t.error); }); },
+  async get(k){ try{ const d = await this.open(); return await new Promise((res, rej) => { const q = d.transaction('f').objectStore('f').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }catch(e){ return null; } },
+  async del(k){ try{ const d = await this.open(); await new Promise(res => { const t = d.transaction('f', 'readwrite'); t.objectStore('f').delete(k); t.oncomplete = res; t.onerror = res; }); }catch(e){} }
+};
+const toB64 = blob => new Promise(res => { const f = new FileReader(); f.onload = () => res(String(f.result).split(',')[1]); f.readAsDataURL(blob); });
+const fromB64 = (b, type) => { const bin = atob(b), a = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type}); };
+async function packFiles(){
+  const files = {};
+  for(const r of DB.archive){
+    const pdf = await idb.get(r.id), sg = await idb.get(r.id + ':s');
+    files[r.id] = {pdf: pdf ? await toB64(pdf) : null, signed: sg ? await toB64(sg) : null, type: sg ? sg.type : ''};
+  }
+  return files;
+}
+async function restoreFiles(files){
+  for(const id of Object.keys(files)){
+    const f = files[id] || {};
+    try{
+      if(f.pdf) await idb.put(id, fromB64(f.pdf, 'application/pdf'));
+      if(f.signed) await idb.put(id + ':s', fromB64(f.signed, f.type || 'application/octet-stream'));
+    }catch(e){}
+  }
+  renderArchive();
+}
+
+async function markPaid(){
+  const {y, m} = view, c = calc(y, m), e = curEmp(), pre = mk(y, m) + '-', snapDays = {};
+  Object.keys(S.days).filter(k => k.startsWith(pre)).forEach(k => snapDays[k] = S.days[k]);
+  if(!Object.keys(snapDays).length) return 'За этот месяц нет отметок, переносить в архив нечего.';
+  const r = await buildReport('month');            // PDF с местами для подписей
+  const rec = {id: 'a' + Date.now().toString(36), empId: e.id, empName: e.name, y, m, paidAt: new Date().toISOString(),
+    net: c.net, cur: S.settings.currency, snap: {days: snapDays, adj: S.adj[mk(y, m)] || {}}, signed: ''};
+  let stored = true;
+  try{ await idb.put(rec.id, r.pdf); }catch(err){ stored = false; }
+  DB.archive.unshift(rec);
+  Object.keys(snapDays).forEach(k => delete S.days[k]); delete S.adj[mk(y, m)];   // очищаем месяц
+  view = m === 11 ? {y: y + 1, m: 0} : {y, m: m + 1};                               // переходим к следующему
+  save(); renderForm(); render(); renderArchive();
+  return `Оплата записана в архив: ${rec.empName}, ${MONTHS[m]} ${y}.` + (stored ? '' : ' PDF сохранить не удалось.');
+}
+let pdt; const PAIDTXT = 'Оплачено → в архив';
+$('#paid').onclick = async e => {
+  const b = e.currentTarget;
+  if(!b.dataset.arm){ b.dataset.arm = 1; b.textContent = 'Подтвердить: оплачено'; pdt = setTimeout(() => { delete b.dataset.arm; b.textContent = PAIDTXT; }, 5000); return; }
+  clearTimeout(pdt); delete b.dataset.arm; b.textContent = PAIDTXT; b.disabled = true;
+  try{ pmsg(await markPaid()); }catch(err){ pmsg('Не удалось перенести в архив.'); }
+  b.disabled = false;
+};
+
+function renderArchive(){
+  const box = $('#arc'); $('#arcBtn').textContent = 'Архив (' + DB.archive.length + ')';
+  if(!DB.archive.length){ box.innerHTML = '<p class="hint" style="margin:0">Пока пусто. После нажатия «Оплачено» месяц попадёт сюда вместе с PDF.</p>'; return; }
+  box.innerHTML = DB.archive.map(r => {
+    const d = new Date(r.paidAt);
+    return `<div class="ar"><b>${esc(r.empName)}</b> · ${MONTHS[r.m]} ${r.y}<br>
+     <small>Оплачено ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} · ${fmc(r.net, r.cur)}${r.signed ? ' · подписанный файл: ' + esc(r.signed) : ''}</small>
+     <div class="row"><button class="btn" data-a="pdf" data-id="${r.id}" type="button">Скачать PDF</button>
+      <label class="btn" style="cursor:pointer">Прикрепить подписанный<input type="file" hidden data-a="att" data-id="${r.id}" accept=".pdf,image/*"></label>
+      ${r.signed ? `<button class="btn" data-a="sg" data-id="${r.id}" type="button">Скачать подписанный</button>` : ''}
+      <button class="btn" data-a="back" data-id="${r.id}" type="button">Вернуть в работу</button>
+      <button class="btn warn" data-a="del" data-id="${r.id}" type="button">Удалить</button></div></div>`;
+  }).join('');
+}
+const amsg = t => $('#amsg').textContent = t;
+$('#arc').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-a]'); if(!b) return;
+  const r = DB.archive.find(x => x.id === b.dataset.id); if(!r) return;
+  const a = b.dataset.a;
+  if(a === 'pdf' || a === 'sg'){
+    const blob = await idb.get(a === 'pdf' ? r.id : r.id + ':s');
+    if(!blob){ amsg('Файла нет на этом устройстве.'); return; }
+    await saveBlob(blob, a === 'pdf' ? `arhiv-${r.y}-${pad(r.m+1)}-${r.id}.pdf` : (r.signed || 'podpisano'));
+    amsg('Файл сохраняется.');
+  }else if(a === 'back'){
+    const emp = DB.emps.find(x => x.id === r.empId);
+    if(!emp){ amsg('Работник удалён, вернуть нельзя.'); return; }
+    Object.assign(emp.data.days, r.snap.days); emp.data.adj[mk(r.y, r.m)] = r.snap.adj;
+    DB.archive = DB.archive.filter(x => x.id !== r.id); idb.del(r.id); idb.del(r.id + ':s');
+    view = {y: r.y, m: r.m}; switchEmp(emp.id); renderForm(); renderArchive(); closeArc(); pmsg('Месяц возвращён в работу.');
+  }else if(a === 'del'){
+    if(!b.dataset.arm){ b.dataset.arm = 1; b.textContent = 'Точно? Ещё раз'; setTimeout(() => { b.dataset.arm = ''; b.textContent = 'Удалить'; }, 4000); return; }
+    DB.archive = DB.archive.filter(x => x.id !== r.id); idb.del(r.id); idb.del(r.id + ':s'); save(); renderArchive();
+  }
+});
+$('#arc').addEventListener('change', async e => {
+  const inp = e.target.closest('input[data-a="att"]'); if(!inp || !inp.files[0]) return;
+  const f = inp.files[0], r = DB.archive.find(x => x.id === inp.dataset.id);
+  if(!r) return;
+  if(f.size > 15*1024*1024){ amsg('Файл больше 15 МБ.'); return; }
+  try{ await idb.put(r.id + ':s', f); r.signed = f.name; save(); renderArchive(); amsg('Подписанный файл прикреплён.'); }
+  catch(err){ amsg('Не удалось прикрепить файл.'); }
+});
+
+// Архив открывается по кнопке
+const closeArc = () => $('#arcov').classList.add('hide');
+$('#arcBtn').onclick = () => { amsg(''); renderArchive(); $('#arcov').classList.remove('hide'); };
+$('#arcX').onclick = closeArc;
+$('#arcov').addEventListener('click', e => { if(e.target.id === 'arcov') closeArc(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeArc(); });
+
+applyTheme(); renderForm(); render(); renderArchive(); initLock();
+
+/* ===== Меню и настройки ===== */
+const menu=$('#menu'),mb=$('#menuBtn'),setov=$('#setov');
+const menuOpen=o=>{menu.classList.toggle('hide',!o);mb.setAttribute('aria-expanded',o)};
+mb.onclick=()=>menuOpen(menu.classList.contains('hide'));
+document.addEventListener('click',e=>{if(!menu.classList.contains('hide')&&!e.target.closest('#menu,#menuBtn'))menuOpen(false)});
+$('#arcBtn').addEventListener('click',()=>menuOpen(false));
+$('#gearBtn').onclick=()=>{menuOpen(false);setov.classList.remove('hide')};
+const closeSet=()=>setov.classList.add('hide');
+$('#setX').onclick=closeSet;
+setov.addEventListener('click',e=>{if(e.target===setov)closeSet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeSet();menuOpen(false)}});
+</script>
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+</body>
+</html>
